@@ -5,6 +5,7 @@ type UpdateStmt struct {
 	raw
 
 	Table string
+	Column []string
 	Value map[string]interface{}
 
 	WhereCond []Builder
@@ -12,6 +13,7 @@ type UpdateStmt struct {
 
 // Build builds `UPDATE ...` in dialect
 func (b *UpdateStmt) Build(d Dialect, buf Buffer) error {
+	var v interface{}
 	if b.raw.Query != "" {
 		return b.raw.Build(d, buf)
 	}
@@ -28,11 +30,11 @@ func (b *UpdateStmt) Build(d Dialect, buf Buffer) error {
 	buf.WriteString(d.QuoteIdent(b.Table))
 	buf.WriteString(" SET ")
 
-	i := 0
-	for col, v := range b.Value {
+	for i, col := range b.Column {
 		if i > 0 {
 			buf.WriteString(", ")
 		}
+		v = b.Value[col]
 		buf.WriteString(d.QuoteIdent(col))
 		buf.WriteString(" = ")
 		buf.WriteString(placeholder)
@@ -55,6 +57,7 @@ func (b *UpdateStmt) Build(d Dialect, buf Buffer) error {
 func Update(table string) *UpdateStmt {
 	return &UpdateStmt{
 		Table: table,
+		Column: make([]string, 0),
 		Value: make(map[string]interface{}),
 	}
 }
@@ -83,6 +86,7 @@ func (b *UpdateStmt) Where(query interface{}, value ...interface{}) *UpdateStmt 
 
 // Set specifies a key-value pair
 func (b *UpdateStmt) Set(column string, value interface{}) *UpdateStmt {
+	b.Column = append(b.Column, column)
 	b.Value[column] = value
 	return b
 }
@@ -90,6 +94,7 @@ func (b *UpdateStmt) Set(column string, value interface{}) *UpdateStmt {
 // SetMap specifies a list of key-value pair
 func (b *UpdateStmt) SetMap(m map[string]interface{}) *UpdateStmt {
 	for col, val := range m {
+		b.Column = append(b.Column, col)
 		b.Set(col, val)
 	}
 	return b
