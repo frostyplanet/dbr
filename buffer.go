@@ -38,7 +38,7 @@ func NewBuffer() *buffer {
 	}
 	b.v, ok = bufferVPool.Get().([]interface{})
 	if b.v == nil {
-		b.v = make([]interface{}, 0, 10)
+		//b.v = make([]interface{}, 0, 10)
 	} else {
 		b.v = b.v[0:0]
 	}
