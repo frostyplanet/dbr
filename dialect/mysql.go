@@ -4,16 +4,25 @@ import (
 	"bytes"
 	"fmt"
 	"time"
+	"sync"
 )
 
 type mysql struct{}
+
+var bufferPool sync.Pool
 
 func (d mysql) QuoteIdent(s string) string {
 	return quoteIdent(s, "`")
 }
 
 func (d mysql) EncodeString(s string) string {
-	buf := new(bytes.Buffer)
+	buf, ok := bufferPool.Get().(*bytes.Buffer)
+	if ok {
+		buf.Reset()
+	} else {
+		buf = new(bytes.Buffer)
+	}
+	defer bufferPool.Put(buf)
 
 	buf.WriteRune('\'')
 	// https://dev.mysql.com/doc/refman/5.7/en/string-literals.html

@@ -4,11 +4,20 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"reflect"
+	"sync"
 	"unicode"
 )
 
+var stdBufferPool sync.Pool
+
 func camelCaseToSnakeCase(name string) string {
-	buf := new(bytes.Buffer)
+	buf, ok := stdBufferPool.Get().(*bytes.Buffer)
+	if ok {
+		buf.Reset()
+	} else {
+		buf = new(bytes.Buffer)
+	}
+	defer stdBufferPool.Put(buf)
 
 	runes := []rune(name)
 

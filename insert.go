@@ -31,7 +31,13 @@ func (b *InsertStmt) Build(d Dialect, buf Buffer) error {
 	buf.WriteString("INSERT INTO ")
 	buf.WriteString(d.QuoteIdent(b.Table))
 
-	placeholderBuf := new(bytes.Buffer)
+	placeholderBuf, ok := stdBufferPool.Get().(*bytes.Buffer)
+	if ok {
+		placeholderBuf.Reset()
+	} else {
+		placeholderBuf = new(bytes.Buffer)
+	}
+	defer stdBufferPool.Put(placeholderBuf)
 	placeholderBuf.WriteString("(")
 	buf.WriteString(" (")
 	for i, col := range b.Column {
