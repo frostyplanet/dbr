@@ -68,6 +68,9 @@ func TestCondition(t *testing.T) {
 		err := test.cond.Build(dialect.MySQL, buf)
 		assert.NoError(t, err)
 		assert.Equal(t, test.query, buf.String())
-		assert.Equal(t, test.value, buf.Value())
+		if ! ((test.value == nil || len(test.value) == 0) &&
+			(buf.Value() == nil || len(buf.Value()) == 0)) {
+			assert.Equal(t, test.value, buf.Value())
+		}
 	}
 }

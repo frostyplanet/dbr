@@ -51,7 +51,10 @@ func TestInterpolateIgnoreBinary(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, test.wantQuery, i.String())
-		assert.Equal(t, test.wantValue, i.Value())
+		if ! ((test.wantValue == nil || len(test.wantValue) == 0) &&
+			(i.Value() == nil || len(i.Value()) == 0)) {
+			assert.Equal(t, test.wantValue, i.Value())
+		}
 	}
 }
 
