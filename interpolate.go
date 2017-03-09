@@ -5,22 +5,44 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
+var interpolatorPool sync.Pool
+
 type interpolator struct {
-	Buffer
 	Dialect
+	Buffer
 	IgnoreBinary bool
 	N            int
 }
 
+func (i *interpolator) Free() {
+	if i.Buffer != nil {
+		i.Buffer.(*buffer).Free()
+		i.Buffer = nil
+	}
+	interpolatorPool.Put(i)
+}
+
+func newInterpolate(d Dialect, ignoreBinary bool) *interpolator {
+	i, ok := interpolatorPool.Get().(*interpolator)
+	if ok {
+		i.IgnoreBinary = ignoreBinary
+		i.N = 0
+	} else {
+		i = new(interpolator)
+	}
+	i.Dialect = d
+	i.Buffer = NewBuffer()
+	return i
+}
+
 // InterpolateForDialect replaces placeholder in query with corresponding value in dialect
 func InterpolateForDialect(query string, value []interface{}, d Dialect) (string, error) {
-	i := interpolator{
-		Buffer:  NewBuffer(),
-		Dialect: d,
-	}
+	i := newInterpolate(d, false)
+	defer i.Free()
 	err := i.interpolate(query, value)
 	if err != nil {
 		return "", err
@@ -80,6 +102,7 @@ func (i *interpolator) encodePlaceholder(value interface{}) error {
 			i.WriteString("(")
 		}
 		err = i.interpolate(pbuf.String(), pbuf.Value())
+		pbuf.Free()
 		if err != nil {
 			return err
 		}

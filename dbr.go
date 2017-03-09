@@ -85,11 +85,8 @@ type runner interface {
 }
 
 func exec(runner runner, log EventReceiver, builder Builder, d Dialect) (sql.Result, error) {
-	i := interpolator{
-		Buffer:       NewBuffer(),
-		Dialect:      d,
-		IgnoreBinary: true,
-	}
+	i := newInterpolate(d, true)
+	defer i.Free()
 	err := i.interpolate(placeholder, []interface{}{builder})
 	query, value := i.String(), i.Value()
 	if err != nil {
@@ -116,11 +113,8 @@ func exec(runner runner, log EventReceiver, builder Builder, d Dialect) (sql.Res
 }
 
 func query(runner runner, log EventReceiver, builder Builder, d Dialect, dest interface{}) (int, error) {
-	i := interpolator{
-		Buffer:       NewBuffer(),
-		Dialect:      d,
-		IgnoreBinary: true,
-	}
+	i := newInterpolate(d, true)
+	defer i.Free()
 	err := i.interpolate(placeholder, []interface{}{builder})
 	query, value := i.String(), i.Value()
 	if err != nil {
