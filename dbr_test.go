@@ -29,7 +29,7 @@ func nextID() int64 {
 }
 
 const (
-	mysqlDSN    = "root@unix(/tmp/mysql.sock)/uservoice_test?charset=utf8"
+	mysqlDSN    = "root@unix(/var/run/mysqld/mysqld.sock)/uservoice_test?charset=utf8"
 	postgresDSN = "postgres://postgres@localhost:5432/uservoice_test?sslmode=disable"
 	sqlite3DSN  = ":memory:"
 )
@@ -58,12 +58,12 @@ func createSession(driver, dsn string) *Session {
 
 var (
 	mysqlSession          = createSession("mysql", mysqlDSN)
-	postgresSession       = createSession("postgres", postgresDSN)
-	postgresBinarySession = createSession("postgres", postgresDSN+"&binary_parameters=yes")
-	sqlite3Session        = createSession("sqlite3", sqlite3DSN)
+//	postgresSession       = createSession("postgres", postgresDSN)
+//	postgresBinarySession = createSession("postgres", postgresDSN+"&binary_parameters=yes")
+//	sqlite3Session        = createSession("sqlite3", sqlite3DSN)
 
 	// all test sessions should be here
-	testSession = []*Session{mysqlSession, postgresSession, sqlite3Session}
+	testSession = []*Session{mysqlSession}
 )
 
 type dbrPerson struct {
@@ -115,7 +115,7 @@ func reset(sess *Session) {
 		}
 	}
 }
-
+/*
 func BenchmarkByteaNoBinaryEncode(b *testing.B) {
 	benchmarkBytea(b, postgresSession)
 }
@@ -123,6 +123,7 @@ func BenchmarkByteaNoBinaryEncode(b *testing.B) {
 func BenchmarkByteaBinaryEncode(b *testing.B) {
 	benchmarkBytea(b, postgresBinarySession)
 }
+*/
 
 func benchmarkBytea(b *testing.B, sess *Session) {
 	data := bytes.Repeat([]byte("0123456789"), 1000)
