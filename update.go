@@ -27,7 +27,7 @@ func (b *UpdateStmt) Build(d Dialect, buf Buffer) error {
 	}
 
 	buf.WriteString("UPDATE ")
-	buf.WriteString(d.QuoteIdent(b.Table))
+	d.WriteQuoteIdent(buf, b.Table)
 	buf.WriteString(" SET ")
 
 	for i, col := range b.Column {
@@ -35,7 +35,7 @@ func (b *UpdateStmt) Build(d Dialect, buf Buffer) error {
 			buf.WriteString(", ")
 		}
 		v = b.Value[col]
-		buf.WriteString(d.QuoteIdent(col))
+		d.WriteQuoteIdent(buf, col)
 		buf.WriteString(" = ")
 		buf.WriteString(placeholder)
 

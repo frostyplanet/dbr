@@ -34,7 +34,7 @@ func Or(cond ...Builder) Builder {
 }
 
 func buildCmp(d Dialect, buf Buffer, pred string, column string, value interface{}) error {
-	buf.WriteString(d.QuoteIdent(column))
+	d.WriteQuoteIdent(buf, column)
 	buf.WriteString(" ")
 	buf.WriteString(pred)
 	buf.WriteString(" ")
@@ -51,7 +51,7 @@ func buildCmp(d Dialect, buf Buffer, pred string, column string, value interface
 func Eq(column string, value interface{}) Builder {
 	return BuildFunc(func(d Dialect, buf Buffer) error {
 		if value == nil {
-			buf.WriteString(d.QuoteIdent(column))
+			d.WriteQuoteIdent(buf, column)
 			buf.WriteString(" IS NULL")
 			return nil
 		}
@@ -74,7 +74,7 @@ func Eq(column string, value interface{}) Builder {
 func Neq(column string, value interface{}) Builder {
 	return BuildFunc(func(d Dialect, buf Buffer) error {
 		if value == nil {
-			buf.WriteString(d.QuoteIdent(column))
+			d.WriteQuoteIdent(buf, column)
 			buf.WriteString(" IS NOT NULL")
 			return nil
 		}

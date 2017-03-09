@@ -29,7 +29,7 @@ func (b *InsertStmt) Build(d Dialect, buf Buffer) error {
 	}
 
 	buf.WriteString("INSERT INTO ")
-	buf.WriteString(d.QuoteIdent(b.Table))
+	d.WriteQuoteIdent(buf, b.Table)
 
 	placeholderBuf, ok := stdBufferPool.Get().(*bytes.Buffer)
 	if ok {
@@ -45,7 +45,7 @@ func (b *InsertStmt) Build(d Dialect, buf Buffer) error {
 			buf.WriteString(",")
 			placeholderBuf.WriteString(",")
 		}
-		buf.WriteString(d.QuoteIdent(col))
+		d.WriteQuoteIdent(buf, col)
 		placeholderBuf.WriteString(placeholder)
 	}
 	buf.WriteString(") VALUES ")

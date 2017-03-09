@@ -118,10 +118,11 @@ func query(runner runner, log EventReceiver, builder Builder, d Dialect, dest in
 	err := i.interpolate(placeholder, []interface{}{builder})
 	query, value := i.String(), i.Value()
 	if err != nil {
-		return 0, log.EventErrKv("dbr.select.interpolate", err, kvs{
+		err = log.EventErrKv("dbr.select.interpolate", err, kvs{
 			"sql":  query,
 			"args": fmt.Sprint(value),
 		})
+		return 0, err
 	}
 
 	startTime := time.Now()

@@ -4,7 +4,7 @@ package dbr
 type I string
 
 func (i I) Build(d Dialect, buf Buffer) error {
-	buf.WriteString(d.QuoteIdent(string(i)))
+	d.WriteQuoteIdent(buf, string(i))
 	return nil
 }
 
@@ -18,7 +18,7 @@ func as(expr interface{}, alias string) Builder {
 		buf.WriteString(placeholder)
 		buf.WriteValue(expr)
 		buf.WriteString(" AS ")
-		buf.WriteString(d.QuoteIdent(alias))
+		d.WriteQuoteIdent(buf, alias)
 		return nil
 	})
 }

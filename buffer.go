@@ -2,10 +2,13 @@ package dbr
 
 import (
 	"bytes"
+	"io"
 	"sync"
 )
 
 type Buffer interface {
+	io.Writer
+	io.ByteWriter
 	WriteString(s string) (n int, err error)
 	String() string
 
@@ -37,9 +40,7 @@ func NewBuffer() *buffer {
 		b.Reset()
 	}
 	b.v, ok = bufferVPool.Get().([]interface{})
-	if b.v == nil {
-		//b.v = make([]interface{}, 0, 10)
-	} else {
+	if b.v != nil {
 		b.v = b.v[0:0]
 	}
 	return b

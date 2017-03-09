@@ -128,7 +128,7 @@ func (i *interpolator) encodePlaceholder(value interface{}) error {
 	v := reflect.ValueOf(value)
 	switch v.Kind() {
 	case reflect.String:
-		i.WriteString(i.EncodeString(v.String()))
+		i.WriteEncodeString(i.Buffer, v.String())
 		return nil
 	case reflect.Bool:
 		i.WriteString(i.EncodeBool(v.Bool()))
@@ -150,7 +150,7 @@ func (i *interpolator) encodePlaceholder(value interface{}) error {
 	case reflect.Slice:
 		if v.Type().Elem().Kind() == reflect.Uint8 {
 			// []byte
-			i.WriteString(i.EncodeBytes(v.Bytes()))
+			i.WriteEncodeBytes(i, v.Bytes())
 			return nil
 		}
 		if v.Len() == 0 {
