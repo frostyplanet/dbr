@@ -105,11 +105,19 @@ func (d mysql) EncodeTime(t time.Time) string {
 }
 
 func (d mysql) EncodeBytes(b []byte) string {
+	if len(b) == 0 {
+		return fmt.Sprintf(`''`)
+	}
 	return fmt.Sprintf(`0x%x`, b)
 }
 
 func (d mysql) WriteEncodeBytes(buf Buffer, b []byte) {
-	fmt.Fprintf(buf, `0x%x`, b)
+	if len(b) == 0 {
+		buf.WriteByte('\'')
+		buf.WriteByte('\'')
+	} else {
+		fmt.Fprintf(buf, `0x%x`, b)
+	}
 }
 
 func (d mysql) Placeholder(_ int) string {
