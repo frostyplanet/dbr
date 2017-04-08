@@ -3,18 +3,22 @@ package dbr
 import "reflect"
 
 func buildCond(d Dialect, buf Buffer, pred string, cond ...Builder) error {
-	for i, c := range cond {
-		if i > 0 {
-			buf.WriteString(" ")
-			buf.WriteString(pred)
-			buf.WriteString(" ")
+	if len(cond) == 1 {
+		return cond[0].Build(d, buf)
+	} else {
+		for i, c := range cond {
+			if i > 0 {
+				buf.WriteString(" ")
+				buf.WriteString(pred)
+				buf.WriteString(" ")
+			}
+			buf.WriteString("(")
+			err := c.Build(d, buf)
+			if err != nil {
+				return err
+			}
+			buf.WriteString(")")
 		}
-		buf.WriteString("(")
-		err := c.Build(d, buf)
-		if err != nil {
-			return err
-		}
-		buf.WriteString(")")
 	}
 	return nil
 }
