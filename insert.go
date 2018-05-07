@@ -12,6 +12,7 @@ type InsertStmt struct {
 	Table  string
 	Column []string
 	Value  [][]interface{}
+	Ignore bool
 }
 
 // Build builds `INSERT INTO ...` in dialect
@@ -27,8 +28,11 @@ func (b *InsertStmt) Build(d Dialect, buf Buffer) error {
 	if len(b.Column) == 0 {
 		return ErrColumnNotSpecified
 	}
-
-	buf.WriteString("INSERT INTO ")
+	if b.Ignore {
+		buf.WriteString("INSERT IGNORE INTO ")
+	} else {
+		buf.WriteString("INSERT INTO ")
+	}
 	d.WriteQuoteIdent(buf, b.Table)
 
 	placeholderBuf, ok := stdBufferPool.Get().(*bytes.Buffer)
@@ -68,6 +72,13 @@ func (b *InsertStmt) Build(d Dialect, buf Buffer) error {
 func InsertInto(table string) *InsertStmt {
 	return &InsertStmt{
 		Table: table,
+	}
+}
+
+func InsertIgnoreInto(table string) *InsertStmt {
+	return &InsertStmt{
+		Table: table,
+		Ignore: true,
 	}
 }
 
